@@ -6,7 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"appengine"
+	"golang.org/x/net/context"
+	"google.golang.org/appengine/log"
 )
 
 type TodosHandler struct {
@@ -22,13 +23,13 @@ func (t *TodosHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err = json.NewEncoder(w).Encode(val)
 	}
 	if err != nil {
-		c.Errorf("todo error: %#v", err)
+		log.Errorf(c, "todo error: %#v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func (t *TodosHandler) HandleTodos(r *http.Request, c appengine.Context, repo TodoRepo) (interface{}, error) {
+func (t *TodosHandler) HandleTodos(r *http.Request, c context.Context, repo TodoRepo) (interface{}, error) {
 	switch r.Method {
 	case "POST":
 		todo, err := t.JSON2Todo(r.Body)
