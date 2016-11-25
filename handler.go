@@ -12,22 +12,22 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-// TodosHandler ...
-type TodosHandler struct {
+// APIHandler ...
+type APIHandler struct {
 	factory Factory
 }
 
 // GetAllTodos ...
-func (t *TodosHandler) GetAllTodos(w http.ResponseWriter, r *http.Request) {
-	t.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+func (h *APIHandler) GetAllTodos(w http.ResponseWriter, r *http.Request) {
+	h.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
 		return repo.GetAllTodos(c)
 	})
 }
 
 // GetTodo ...
-func (t *TodosHandler) GetTodo(w http.ResponseWriter, r *http.Request) {
-	t.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
-		id, err := t.parseID(r)
+func (h *APIHandler) GetTodo(w http.ResponseWriter, r *http.Request) {
+	h.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+		id, err := h.parseID(r)
 
 		if err != nil {
 			return nil, err
@@ -38,16 +38,16 @@ func (t *TodosHandler) GetTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteDoneTodos ...
-func (t *TodosHandler) DeleteDoneTodos(w http.ResponseWriter, r *http.Request) {
-	t.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+func (h *APIHandler) DeleteDoneTodos(w http.ResponseWriter, r *http.Request) {
+	h.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
 		return nil, repo.DeleteDoneTodos(c)
 	})
 }
 
 // DeleteTodo ...
-func (t *TodosHandler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
-	t.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
-		id, err := t.parseID(r)
+func (h *APIHandler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
+	h.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+		id, err := h.parseID(r)
 
 		if err != nil {
 			return nil, err
@@ -58,9 +58,9 @@ func (t *TodosHandler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 // SaveTodo ...
-func (t *TodosHandler) SaveTodo(w http.ResponseWriter, r *http.Request) {
-	t.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
-		todo, err := t.json2Todo(r.Body)
+func (h *APIHandler) SaveTodo(w http.ResponseWriter, r *http.Request) {
+	h.commonJSONHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+		todo, err := h.json2Todo(r.Body)
 		if err != nil {
 			return nil, err
 		}
@@ -68,12 +68,12 @@ func (t *TodosHandler) SaveTodo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (t *TodosHandler) commonJSONHandler(
+func (h *APIHandler) commonJSONHandler(
 	w http.ResponseWriter, r *http.Request,
 	f func(c context.Context, repo TodoRepo) (interface{}, error)) {
 
-	c := t.factory.Context(r)
-	repo := t.factory.TodoRepo()
+	c := h.factory.Context(r)
+	repo := h.factory.TodoRepo()
 
 	val, err := f(c, repo)
 	if err == nil {
@@ -87,14 +87,14 @@ func (t *TodosHandler) commonJSONHandler(
 	}
 }
 
-func (t *TodosHandler) json2Todo(r io.ReadCloser) (*Todo, error) {
+func (h *APIHandler) json2Todo(r io.ReadCloser) (*Todo, error) {
 	defer r.Close()
 	var todo Todo
 	err := json.NewDecoder(r).Decode(&todo)
 	return &todo, err
 }
 
-func (t *TodosHandler) parseID(r *http.Request) (i int64, err error) {
+func (h *APIHandler) parseID(r *http.Request) (i int64, err error) {
 	vars := mux.Vars(r)
 	return strconv.ParseInt(vars["id"], 10, 64)
 }

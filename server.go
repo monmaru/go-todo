@@ -5,7 +5,7 @@ import "github.com/gorilla/mux"
 
 func init() {
 	r := mux.NewRouter()
-	handler := &TodosHandler{
+	handler := &APIHandler{
 		factory: &GaeFactory{},
 	}
 
