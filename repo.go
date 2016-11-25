@@ -1,4 +1,4 @@
-package todo
+package gotodo
 
 import (
 	"time"
@@ -7,54 +7,80 @@ import (
 	ds "google.golang.org/appengine/datastore"
 )
 
+// TodoRepo ...
 type TodoRepo interface {
-	Save(c context.Context, t *Todo) (*Todo, error)
+	SaveTodo(c context.Context, t *Todo) (*Todo, error)
+	GetTodo(c context.Context, id int64) (*Todo, error)
 	GetAllTodos(c context.Context) ([]Todo, error)
+	DeleteTodo(c context.Context, id int64) error
 	DeleteDoneTodos(c context.Context) error
 }
 
+// TodoDatastore ...
 type TodoDatastore struct {
 }
 
-func (store *TodoDatastore) TodoList(c context.Context) *ds.Key {
+func (store *TodoDatastore) getTodoListKey(c context.Context) *ds.Key {
 	return ds.NewKey(c, "TodoList", "default", 0, nil)
 }
 
-func (store *TodoDatastore) GetKey(c context.Context, t *Todo) *ds.Key {
+func (store *TodoDatastore) getTodoKey(c context.Context, t *Todo) *ds.Key {
 	if t.ID == 0 {
 		t.Created = time.Now()
-		return ds.NewIncompleteKey(c, "Todo", store.TodoList(c))
+		return ds.NewIncompleteKey(c, "Todo", store.getTodoListKey(c))
 	}
-	return ds.NewKey(c, "Todo", "", t.ID, store.TodoList(c))
+	return ds.NewKey(c, "Todo", "", t.ID, store.getTodoListKey(c))
 }
 
-func (store *TodoDatastore) Save(c context.Context, t *Todo) (*Todo, error) {
-	k, err := ds.Put(c, store.GetKey(c, t), t)
+// SaveTodo ...
+func (store *TodoDatastore) SaveTodo(c context.Context, t *Todo) (*Todo, error) {
+	key, err := ds.Put(c, store.getTodoKey(c, t), t)
 	if err != nil {
 		return nil, err
 	}
-	t.ID = k.IntID()
+	t.ID = key.IntID()
 	return t, nil
 }
 
+// GetTodo ...
+func (store *TodoDatastore) GetTodo(c context.Context, id int64) (*Todo, error) {
+	todo := &Todo{}
+	key := ds.NewKey(c, "Todo", "", id, store.getTodoListKey(c))
+	err := ds.Get(c, key, todo)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return todo, nil
+}
+
+// GetAllTodos ...
 func (store *TodoDatastore) GetAllTodos(c context.Context) ([]Todo, error) {
 	todos := []Todo{}
-	ks, err := ds.NewQuery("Todo").Ancestor(store.TodoList(c)).Order("Created").GetAll(c, &todos)
+	keys, err := ds.NewQuery("Todo").Ancestor(store.getTodoListKey(c)).Order("Created").GetAll(c, &todos)
 	if err != nil {
 		return nil, err
 	}
 	for i := 0; i < len(todos); i++ {
-		todos[i].ID = ks[i].IntID()
+		todos[i].ID = keys[i].IntID()
 	}
 	return todos, nil
 }
 
+// DeleteTodo ...
+func (store *TodoDatastore) DeleteTodo(c context.Context, id int64) error {
+	key := ds.NewKey(c, "Todo", "", id, store.getTodoListKey(c))
+	return ds.Delete(c, key)
+}
+
+// DeleteDoneTodos ...
 func (store *TodoDatastore) DeleteDoneTodos(c context.Context) error {
 	return ds.RunInTransaction(c, func(c context.Context) error {
-		ks, err := ds.NewQuery("Todo").KeysOnly().Ancestor(store.TodoList(c)).Filter("Done=", true).GetAll(c, nil)
+		keys, err := ds.NewQuery("Todo").KeysOnly().Ancestor(store.getTodoListKey(c)).Filter("Done=", true).GetAll(c, nil)
 		if err != nil {
 			return err
 		}
-		return ds.DeleteMulti(c, ks)
+		return ds.DeleteMulti(c, keys)
 	}, nil)
 }

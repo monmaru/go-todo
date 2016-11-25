@@ -28,29 +28,29 @@
 
         this.newTodo.done = false;
 
-        this.$http.post('/api/todos', this.newTodo).success(function(res) {
-          this.newTodo.id = res.id;
+        this.$http.post('/api/todos', this.newTodo).then(function(res) {
+          this.newTodo.id = res.data.id;
           this.todos.push(this.newTodo);
-
           this.newTodo = {};
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log(err);
         });
       },
 
-      deleteTodo: function(index) {
-        this.$http.delete('/api/todos/' + index).success(function(res) {
+      deleteTodo: function(id) {
+        this.$http.delete('/api/todos/' + id).then(function(res) {
           this.getAllTodos();
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log(err);
         });
       },
 
       updateTodo: function(todo, completed) {
-        todo.done = completed;
-        this.$http.post('/api/todos', todo).success(function(res) {
-          this.getAllTodos();
-        }).error(function(err) {
+        if (completed !== undefined) {
+          todo.done = completed;
+        }
+
+        this.$http.post('/api/todos', todo).catch(function(err) {
           console.log(err);
         });
       }

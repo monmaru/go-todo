@@ -1,10 +1,19 @@
-package todo
+package gotodo
 
 import "net/http"
+import "github.com/gorilla/mux"
 
 func init() {
-	http.Handle("/", http.FileServer(http.Dir("public")))
-	http.Handle("/api/todos", &TodosHandler{
+	r := mux.NewRouter()
+	handler := &TodosHandler{
 		factory: &GaeFactory{},
-	})
+	}
+
+	r.HandleFunc("/api/todos", handler.GetAllTodos).Methods("GET")
+	r.HandleFunc("/api/todos/{id}", handler.GetTodo).Methods("GET")
+	r.HandleFunc("/api/todos", handler.SaveTodo).Methods("POST")
+	r.HandleFunc("/api/todos", handler.DeleteDoneTodos).Methods("DELETE")
+	r.HandleFunc("/api/todos/{id}", handler.DeleteTodo).Methods("DELETE")
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
+	http.Handle("/", r)
 }
