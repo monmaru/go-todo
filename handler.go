@@ -34,14 +34,14 @@ type API struct {
 
 // HandleGetAllTodos ...
 func (api *API) HandleGetAllTodos(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		return repo.ReadAllTodos(c)
 	})
 }
 
 // HandleGetTodo ...
 func (api *API) HandleGetTodo(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		id, err := api.parseID(r)
 		if err != nil {
 			return nil, err
@@ -52,14 +52,14 @@ func (api *API) HandleGetTodo(w http.ResponseWriter, r *http.Request) {
 
 // HandleDeleteDoneTodos ...
 func (api *API) HandleDeleteDoneTodos(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		return nil, repo.DeleteDoneTodos(c)
 	})
 }
 
 // HandleDeleteTodo ...
 func (api *API) HandleDeleteTodo(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		id, err := api.parseID(r)
 		if err != nil {
 			return nil, err
@@ -70,7 +70,7 @@ func (api *API) HandleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 // HandlePutTodo ...
 func (api *API) HandlePutTodo(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		todo, err := api.json2Todo(r.Body)
 		if err != nil {
 			return nil, err
@@ -81,7 +81,7 @@ func (api *API) HandlePutTodo(w http.ResponseWriter, r *http.Request) {
 
 // HandlePostTodo ...
 func (api *API) HandlePostTodo(w http.ResponseWriter, r *http.Request) {
-	api.commonHandler(w, r, func(c context.Context, repo TodoRepo) (interface{}, error) {
+	api.commonHandler(w, r, func(c context.Context, repo TodoRepository) (interface{}, error) {
 		todo, err := api.json2Todo(r.Body)
 		if err != nil {
 			return nil, err
@@ -92,10 +92,10 @@ func (api *API) HandlePostTodo(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) commonHandler(
 	w http.ResponseWriter, r *http.Request,
-	fn func(c context.Context, repo TodoRepo) (interface{}, error)) {
+	fn func(c context.Context, repo TodoRepository) (interface{}, error)) {
 
 	c := api.factory.Context(r)
-	repo := api.factory.TodoRepo()
+	repo := api.factory.TodoRepository()
 
 	val, err := fn(c, repo)
 	if err == nil {

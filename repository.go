@@ -7,8 +7,8 @@ import (
 	ds "google.golang.org/appengine/datastore"
 )
 
-// TodoRepo ...
-type TodoRepo interface {
+// TodoRepository ...
+type TodoRepository interface {
 	CreateTodo(c context.Context, todo *Todo) (*Todo, error)
 	ReadTodo(c context.Context, id int64) (*Todo, error)
 	ReadAllTodos(c context.Context) ([]Todo, error)

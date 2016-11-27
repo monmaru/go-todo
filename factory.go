@@ -10,7 +10,7 @@ import (
 // Factory ...
 type Factory interface {
 	Context(r *http.Request) context.Context
-	TodoRepo() TodoRepo
+	TodoRepository() TodoRepository
 }
 
 // GaeFactory ...
@@ -21,7 +21,7 @@ func (f *GaeFactory) Context(r *http.Request) context.Context {
 	return appengine.NewContext(r)
 }
 
-// TodoRepo ...
-func (f *GaeFactory) TodoRepo() TodoRepo {
+// TodoRepository ...
+func (f *GaeFactory) TodoRepository() TodoRepository {
 	return &TodoDatastore{}
 }

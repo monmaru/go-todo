@@ -24,29 +24,29 @@ var dummyTodos = []Todo{
 	dummyTodo,
 }
 
-type fakeRepo struct{}
+type fakeRepository struct{}
 
-func (repo *fakeRepo) CreateTodo(c context.Context, todo *Todo) (*Todo, error) {
+func (repo *fakeRepository) CreateTodo(c context.Context, todo *Todo) (*Todo, error) {
 	return &dummyTodo, nil
 }
 
-func (repo *fakeRepo) ReadTodo(c context.Context, id int64) (*Todo, error) {
+func (repo *fakeRepository) ReadTodo(c context.Context, id int64) (*Todo, error) {
 	return &dummyTodo, nil
 }
 
-func (repo *fakeRepo) ReadAllTodos(c context.Context) ([]Todo, error) {
+func (repo *fakeRepository) ReadAllTodos(c context.Context) ([]Todo, error) {
 	return dummyTodos, nil
 }
 
-func (repo *fakeRepo) UpdateTodo(c context.Context, todo *Todo) (*Todo, error) {
+func (repo *fakeRepository) UpdateTodo(c context.Context, todo *Todo) (*Todo, error) {
 	return &dummyTodo, nil
 }
 
-func (repo *fakeRepo) DeleteTodo(c context.Context, id int64) error {
+func (repo *fakeRepository) DeleteTodo(c context.Context, id int64) error {
 	return nil
 }
 
-func (repo *fakeRepo) DeleteDoneTodos(c context.Context) error {
+func (repo *fakeRepository) DeleteDoneTodos(c context.Context) error {
 	return nil
 }
 
@@ -56,8 +56,8 @@ func (f *fakeFactory) Context(r *http.Request) context.Context {
 	return nil
 }
 
-func (f *fakeFactory) TodoRepo() TodoRepo {
-	return &fakeRepo{}
+func (f *fakeFactory) TodoRepository() TodoRepository {
+	return &fakeRepository{}
 }
 
 func TestHandleGetTodo(t *testing.T) {

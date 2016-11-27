@@ -2,11 +2,11 @@ package gotodo
 
 import "testing"
 
-func TestTodoRepo(t *testing.T) {
+func TestTodoRepository(t *testing.T) {
 	f := &GaeFactory{}
-	repo := f.TodoRepo()
+	repo := f.TodoRepository()
 
 	if repo == nil {
-		t.Fatal("TodoRepo() shoud not be nil")
+		t.Fatal("TodoRepository() shoud not be nil")
 	}
 }
