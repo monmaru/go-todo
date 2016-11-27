@@ -94,16 +94,16 @@ func (api *API) commonHandler(
 	w http.ResponseWriter, r *http.Request,
 	fn func(c context.Context, repo TodoRepository) (interface{}, error)) {
 
-	c := api.factory.Context(r)
+	ctx := api.factory.Context(r)
 	repo := api.factory.TodoRepository()
 
-	val, err := fn(c, repo)
+	val, err := fn(ctx, repo)
 	if err == nil {
 		err = json.NewEncoder(w).Encode(val)
 	}
 
 	if err != nil {
-		log.Errorf(c, "todo error: %#v", err)
+		log.Errorf(ctx, "todo error: %#v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
