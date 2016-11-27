@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetTodoListKey(t *testing.T) {
+func TestParentKey(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
@@ -16,71 +16,47 @@ func TestGetTodoListKey(t *testing.T) {
 
 	repo := &TodoDatastore{}
 
-	if key := repo.getTodoListKey(ctx); key == nil {
+	if key := repo.parentKey(ctx); key == nil {
 		t.Fatalf("key should not be nil")
 	}
 }
 
-func TestGetTodoKey(t *testing.T) {
+func TestCreateTodo(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer done()
-
-	repo := &TodoDatastore{}
-
-	for _, id := range []int64{0, 1} {
-		todo := &Todo{
-			ID:   id,
-			Text: "todo",
-			Done: false,
-		}
-
-		if key := repo.getTodoKey(ctx, todo); key == nil {
-			t.Fatalf("key should not be nil")
-		}
-	}
-}
-
-func TestSave(t *testing.T) {
-	ctx, done, err := aetest.NewContext()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	defer done()
 
 	repo := &TodoDatastore{}
 
 	expected := &Todo{
-		ID:   10,
 		Text: "todo",
 		Done: false,
 	}
 
-	saved, err := repo.SaveTodo(ctx, expected)
+	created, err := repo.CreateTodo(ctx, expected)
 
-	if saved == nil {
-		t.Fatalf("saved should not be nil")
+	if created == nil {
+		t.Fatalf("created should not be nil")
 	}
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	result, err := repo.GetTodo(ctx, expected.ID)
+	result, err := repo.ReadTodo(ctx, created.ID)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if expected.Text != result.Text {
-		t.Fatalf("GetAllTodos Failed")
+		t.Fatalf("Failed to create")
 	}
 }
 
-func TestTodoList(t *testing.T) {
+func TestUpdateTodo(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
@@ -89,12 +65,40 @@ func TestTodoList(t *testing.T) {
 
 	repo := &TodoDatastore{}
 
-	if key := repo.getTodoListKey(ctx); key == nil {
-		t.Fatalf("TodoList Failed")
+	todo := &Todo{
+		Text: "todo",
+		Done: false,
+	}
+
+	key := ds.NewIncompleteKey(ctx, kind, repo.parentKey(ctx))
+	if _, err := ds.Put(ctx, key, todo); err != nil {
+		t.Fatal(err)
+	}
+
+	todo.Done = true
+
+	updated, err := repo.UpdateTodo(ctx, todo)
+
+	if updated == nil {
+		t.Fatalf("updated should not be nil")
+	}
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := repo.ReadTodo(ctx, updated.ID)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !result.Done {
+		t.Fatalf("Failed to update")
 	}
 }
 
-func TestDeleteTodoAndGetTodo(t *testing.T) {
+func TestDeleteTodoAndReadTodo(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
@@ -103,20 +107,20 @@ func TestDeleteTodoAndGetTodo(t *testing.T) {
 
 	repo := &TodoDatastore{}
 	todo := &Todo{
-		ID:   10,
 		Text: "todo",
 		Done: false,
 	}
 
-	if _, err := ds.Put(ctx, repo.getTodoKey(ctx, todo), todo); err != nil {
+	created, err := repo.CreateTodo(ctx, todo)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err = repo.DeleteTodo(ctx, todo.ID); err != nil {
+	if err = repo.DeleteTodo(ctx, created.ID); err != nil {
 		t.Fatal(err)
 	}
 
-	todos, err := repo.GetAllTodos(ctx)
+	todos, err := repo.ReadAllTodos(ctx)
 
 	if err != nil {
 		t.Fatal(err)
@@ -141,7 +145,8 @@ func TestDeleteDoneTodos(t *testing.T) {
 		Done: true,
 	}
 
-	if _, err := ds.Put(ctx, repo.getTodoKey(ctx, todo), todo); err != nil {
+	key := ds.NewKey(ctx, kind, "", todo.ID, repo.parentKey(ctx))
+	if _, err := ds.Put(ctx, key, todo); err != nil {
 		t.Fatal(err)
 	}
 
@@ -149,7 +154,7 @@ func TestDeleteDoneTodos(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	todos, err := repo.GetAllTodos(ctx)
+	todos, err := repo.ReadAllTodos(ctx)
 
 	if err != nil {
 		t.Fatal(err)
@@ -160,7 +165,7 @@ func TestDeleteDoneTodos(t *testing.T) {
 	}
 }
 
-func TestGetAllTodos(t *testing.T) {
+func TestReadAllTodos(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
@@ -182,12 +187,13 @@ func TestGetAllTodos(t *testing.T) {
 	}
 
 	for _, todo := range todos {
-		if _, err := ds.Put(ctx, repo.getTodoKey(ctx, todo), todo); err != nil {
+		key := ds.NewKey(ctx, kind, "", todo.ID, repo.parentKey(ctx))
+		if _, err := ds.Put(ctx, key, todo); err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	result, err := repo.GetAllTodos(ctx)
+	result, err := repo.ReadAllTodos(ctx)
 
 	if err != nil {
 		t.Fatal(err)

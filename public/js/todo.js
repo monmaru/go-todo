@@ -47,7 +47,7 @@
 
       updateTodo: function(todo, completed) {
          todo.done = completed;
-         this.$http.post('/api/todos', todo).then(function(res) {
+         this.$http.put('/api/todos', todo).then(function(res) {
            this.getAllTodos();
          }).catch(function(err) {
            console.log(err);

@@ -3,8 +3,4 @@ indexes:
   ancestor: yes
   properties:
   - name: Created
-
-- kind: Todo
-  ancestor: yes
-  properties:
   - name: Done

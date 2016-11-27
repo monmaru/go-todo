@@ -1,68 +1,69 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>TODO</title>
-
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
-	<link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.8.0/vue-resource.min.js"></script>
-</head>
-<body>
-
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8">
-				<h1>TODOリスト</h1>
-
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="New TODO" v-on:keyup.enter="createTodo" v-model="newTodo.text" autofocus>
-					<span class="input-group-btn">
-						<button class="btn btn-primary" type="button" v-on:click="createTodo">Create</button>
-					</span>
-				</div>
-
-				<br>
-				<h2>対応中</h2>
-				<div v-for="todo in todos" style="margin-bottom: 5px;">
-					<div v-if="todo.done===false" class="input-group">
-						<span class="input-group-btn">
-							<button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo, true)"><i class="fa fa-check" aria-hidden="true"></i></button>
-						</span>
-
-						<input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
-
-						<span class="input-group-btn">
-							<button class="btn btn-info" type="button" v-on:click="updateTodo(todo)"><i class="fa fa-edit" aria-hidden="true"></i></button>
-							<button class="btn btn-danger" type="button" v-on:click="deleteTodo(todo.id)"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-						</span>
-					</div>
-				</div>
-
-				<br>
-				<h2>完了</h2>
-				<div v-for="todo in todos" style="margin-bottom: 5px;">
-					<div v-if="todo.done===true" class="input-group">
-						<span class="input-group-btn">
-							<button class="btn btn-info" type="button" :disabled="todo.done===false" v-on:click="updateTodo(todo, false)"><i class="fa fa-check" aria-hidden="true"></i></button>
-						</span>
-
-						<input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
-
-						<span class="input-group-btn">
-							<button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo)"><i class="fa fa-edit" aria-hidden="true"></i></button>
-							<button class="btn btn-danger" type="button" v-on:click="deleteTodo(todo.id)"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<script type="text/javascript" src="js/todo.js"></script>
-</body>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>GO-TODO</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.8.0/vue-resource.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8">
+          <h1>TODOリスト</h1>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="New TODO" v-on:keyup.enter="createTodo" v-model="newTodo.text" autofocus>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="button" v-on:click="createTodo">Create</button>
+            </span>
+          </div>
+          <br>
+          <h2>対応中</h2>
+          <div v-for="todo in todos" style="margin-bottom: 5px;">
+            <div v-if="todo.done===false" class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo, true)">
+                  <i class="fa fa-check" aria-hidden="true"></i>
+                </button>
+              </span>
+              <input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
+              <span class="input-group-btn">
+                <button class="btn btn-info" type="button" v-on:click="updateTodo(todo)">
+                  <i class="fa fa-edit" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-danger" type="button" v-on:click="deleteTodo(todo.id)">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+          <br>
+          <h2>完了</h2>
+          <div v-for="todo in todos" style="margin-bottom: 5px;">
+            <div v-if="todo.done===true" class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-info" type="button" :disabled="todo.done===false" v-on:click="updateTodo(todo, false)">
+                  <i class="fa fa-check" aria-hidden="true"></i>
+                </button>
+              </span>
+              <input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
+              <span class="input-group-btn">
+                <button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo)">
+                  <i class="fa fa-edit" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-danger" type="button" v-on:click="deleteTodo(todo.id)">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="js/todo.js"></script>
+  </body>
 </html>

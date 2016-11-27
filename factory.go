@@ -14,8 +14,7 @@ type Factory interface {
 }
 
 // GaeFactory ...
-type GaeFactory struct {
-}
+type GaeFactory struct{}
 
 // Context ...
 func (f *GaeFactory) Context(r *http.Request) context.Context {
