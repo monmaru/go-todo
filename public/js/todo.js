@@ -30,6 +30,7 @@
 
         this.$http.post('/api/todos', this.newTodo).then(function(res) {
           this.newTodo.id = res.data.id;
+          this.newTodo.created = res.data.created;
           this.todos.push(this.newTodo);
           this.newTodo = {};
         }).catch(function(err) {
