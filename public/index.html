@@ -50,7 +50,7 @@
                   <i class="fa fa-check" aria-hidden="true"></i>
                 </button>
               </span>
-              <input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
+              <input type="text" style="text-decoration: line-through;" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
               <span class="input-group-btn">
                 <button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo)">
                   <i class="fa fa-edit" aria-hidden="true"></i>
