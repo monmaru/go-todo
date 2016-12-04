@@ -128,15 +128,14 @@ func (app *App) commonJSONHandler(
 	fn func(c context.Context, repo TodoRepository) (interface{}, error)) {
 
 	ctx := app.helper.Context(r)
-	user := app.helper.CurrentUser(ctx)
-	if user == nil {
-		message := "Please Login"
-		log.Errorf(ctx, message)
-		http.Error(w, message, http.StatusInternalServerError)
+	u := app.helper.CurrentUser(ctx)
+	if u == nil {
+		log.Errorf(ctx, "User is not login: %#v", u)
+		http.Error(w, "Please login!!", http.StatusInternalServerError)
 		return
 	}
 
-	repo := app.helper.TodoRepository(toHash(user.ID))
+	repo := app.helper.TodoRepository(toHash(u.ID))
 	val, err := fn(ctx, repo)
 	if err == nil {
 		err = json.NewEncoder(w).Encode(val)
