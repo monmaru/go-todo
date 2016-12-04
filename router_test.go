@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/user"
 )
 
 var dummyTodo = Todo{
@@ -50,21 +51,41 @@ func (repo *fakeRepository) DeleteDoneTodos(c context.Context) error {
 	return nil
 }
 
-type fakeFactory struct{}
-
-func (f *fakeFactory) Context(r *http.Request) context.Context {
-	return nil
+type fakeHelper struct {
+	ctx  context.Context
+	u    *user.User
+	repo TodoRepository
 }
 
-func (f *fakeFactory) TodoRepository() TodoRepository {
-	return &fakeRepository{}
+func newfakeHelper() *fakeHelper {
+	u := &user.User{
+		ID:    "dummyUserID",
+		Email: "test@example.com",
+	}
+	return &fakeHelper{
+		ctx:  nil,
+		u:    u,
+		repo: &fakeRepository{},
+	}
+}
+
+func (h *fakeHelper) Context(r *http.Request) context.Context {
+	return h.ctx
+}
+
+func (h *fakeHelper) CurrentUser(ctx context.Context) *user.User {
+	return h.u
+}
+
+func (h *fakeHelper) TodoRepository(userID string) TodoRepository {
+	return h.repo
 }
 
 func TestHandleGetTodo(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/api/todos/1111111", nil)
 	w := httptest.NewRecorder()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	var todo Todo
 	if err := json.NewDecoder(w.Body).Decode(&todo); err != nil {
@@ -80,7 +101,7 @@ func TestHandleGetAllTodos(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/api/todos", nil)
 	w := httptest.NewRecorder()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	var todos []Todo
 	if err := json.NewDecoder(w.Body).Decode(&todos); err != nil {
@@ -98,7 +119,7 @@ func TestHandlePutTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	defer r.Body.Close()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	var todo Todo
 	if err := json.NewDecoder(w.Body).Decode(&todo); err != nil {
@@ -116,7 +137,7 @@ func TestHandlePostTodo(t *testing.T) {
 	w := httptest.NewRecorder()
 	defer r.Body.Close()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	var todo Todo
 	if err := json.NewDecoder(w.Body).Decode(&todo); err != nil {
@@ -132,9 +153,9 @@ func TestHandleDeleteTodo(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/api/todos/1111111", nil)
 	w := httptest.NewRecorder()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
-	if w.Code != 200 {
+	if w.Code != http.StatusOK {
 		t.Fatalf("Status Code is invalid")
 	}
 }
@@ -143,20 +164,62 @@ func TestHandleDeleteDoneTodos(t *testing.T) {
 	r, _ := http.NewRequest("DELETE", "/api/todos", nil)
 	w := httptest.NewRecorder()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	Router(newfakeHelper()).ServeHTTP(w, r)
 
-	if w.Code != 200 {
+	if w.Code != http.StatusOK {
 		t.Fatalf("Status Code is invalid")
 	}
 }
 
-func TestHandleRoot(t *testing.T) {
+func TestHandleRootOnLogin(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
 
-	Router(&fakeFactory{}).ServeHTTP(w, r)
+	_userWrapper = struct {
+		LoginURL  func(c context.Context, dest string) (string, error)
+		LogoutURL func(c context.Context, dest string) (string, error)
+	}{
+		func(c context.Context, dest string) (string, error) {
+			return "LoginURL", nil
+		},
+		func(c context.Context, dest string) (string, error) {
+			return "LogoutURL", nil
+		},
+	}
 
-	if w.Code != 200 {
+	Router(newfakeHelper()).ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
 		t.Fatalf("Status Code is invalid")
+	}
+}
+
+func TestHandleRootOnLogout(t *testing.T) {
+	r, _ := http.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	expectedLoginURL := "LoginURL"
+
+	_userWrapper = struct {
+		LoginURL  func(c context.Context, dest string) (string, error)
+		LogoutURL func(c context.Context, dest string) (string, error)
+	}{
+		func(c context.Context, dest string) (string, error) {
+			return expectedLoginURL, nil
+		},
+		func(c context.Context, dest string) (string, error) {
+			return "LogoutURL", nil
+		},
+	}
+
+	fake := newfakeHelper()
+	fake.u = nil
+	Router(fake).ServeHTTP(w, r)
+
+	if w.Code != http.StatusFound {
+		t.Fatalf("Status Code is invalid")
+	}
+
+	if w.Header().Get("Location") != expectedLoginURL {
+		t.Fatalf("Location header is invalid")
 	}
 }

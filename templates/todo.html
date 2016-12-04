@@ -11,9 +11,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.8.0/vue-resource.min.js"></script>
   </head>
   <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <ul class="nav pull-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.EMAIL}} 
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="{{.LOGOUT}}">Logout</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="container">
       <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
           <h1>TODOリスト</h1>
           <div class="input-group">
             <input type="text" class="form-control" placeholder="New TODO" v-model="newTodo.text" autofocus>
@@ -30,7 +48,7 @@
                   <i class="fa fa-check" aria-hidden="true"></i>
                 </button>
               </span>
-              <input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
+              <input type="text" class="form-control" :disabled="todo.done===true" v-model="todo.text">
               <span class="input-group-btn">
                 <button class="btn btn-info" type="button" v-on:click="updateTodo(todo)">
                   <i class="fa fa-edit" aria-hidden="true"></i>
@@ -50,7 +68,7 @@
                   <i class="fa fa-check" aria-hidden="true"></i>
                 </button>
               </span>
-              <input type="text" style="text-decoration: line-through;" class="form-control" :disabled="todo.done===true" v-model="todo.text" v-on:keyup.enter="updateTodo(todo)">
+              <input type="text" style="text-decoration: line-through;" class="form-control" :disabled="todo.done===true" v-model="todo.text">
               <span class="input-group-btn">
                 <button class="btn btn-info" type="button" :disabled="todo.done===true" v-on:click="updateTodo(todo)">
                   <i class="fa fa-edit" aria-hidden="true"></i>
@@ -64,6 +82,64 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript" src="js/todo.js"></script>
+    <script>
+      (function(Vue) {
+        new Vue({
+          el: 'body',
+
+          data: {
+            todos: [],
+            newTodo: {}
+          },
+
+          created: function() {
+            this.getAllTodos();
+          },
+
+          methods: {
+            getAllTodos: function() {
+              this.$http.get('/api/todos').then(function(res) {
+                this.todos = res.data ? res.data : [];
+              });
+            },
+
+            createTodo: function() {
+              if (!$.trim(this.newTodo.text)) {
+                this.newTodo = {};
+                return;
+              };
+
+              this.newTodo.done = false;
+
+              this.$http.post('/api/todos', this.newTodo).then(function(res) {
+                this.newTodo.id = res.data.id;
+                this.newTodo.created = res.data.created;
+                this.todos.push(this.newTodo);
+                this.newTodo = {};
+              }).catch(function(err) {
+                console.log(err);
+              });
+            },
+
+            deleteTodo: function(id) {
+              this.$http.delete('/api/todos/' + id).then(function(res) {
+                this.getAllTodos();
+              }).catch(function(err) {
+                console.log(err);
+              });
+            },
+
+            updateTodo: function(todo, completed) {
+              todo.done = completed;
+              this.$http.put('/api/todos', todo).then(function(res) {
+                this.getAllTodos();
+              }).catch(function(err) {
+                console.log(err);
+              });
+            }
+          }
+        });
+      })(Vue);
+    </script>
   </body>
 </html>

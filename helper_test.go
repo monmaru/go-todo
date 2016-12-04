@@ -6,12 +6,10 @@ import (
 	"google.golang.org/appengine/aetest"
 )
 
-func TestTodoRepository(t *testing.T) {
-	factory := &GaeFactory{}
-	repo := factory.TodoRepository()
-
-	if repo == nil {
-		t.Fatal("TodoRepository() shoud not be nil")
+func TestNewGaeHelper(t *testing.T) {
+	helper := NewGaeHelper()
+	if helper == nil {
+		t.Fatal("NewGaeHelper() shoud not be nil")
 	}
 }
 
@@ -27,10 +25,19 @@ func TestContext(t *testing.T) {
 		t.Fatalf("Failed to create new request: %v", err)
 	}
 
-	factory := &GaeFactory{}
-	ctx := factory.Context(r)
+	helper := &GaeHelper{}
+	ctx := helper.Context(r)
 
 	if ctx == nil {
 		t.Fatal("Context() shoud not be nil")
+	}
+}
+
+func TestTodoRepository(t *testing.T) {
+	helper := &GaeHelper{}
+	repo := helper.TodoRepository("dummy")
+
+	if repo == nil {
+		t.Fatal("TodoRepository() shoud not be nil")
 	}
 }

@@ -7,16 +7,16 @@ import (
 	"testing"
 )
 
-func TestParentKey(t *testing.T) {
+func TestUserKey(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 
-	if key := repo.parentKey(ctx); key == nil {
+	if key := repo.userKey(ctx); key == nil {
 		t.Fatalf("key should not be nil")
 	}
 }
@@ -28,7 +28,7 @@ func TestCreateTodo(t *testing.T) {
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 
 	expected := &Todo{
 		Text: "todo",
@@ -63,14 +63,14 @@ func TestUpdateTodo(t *testing.T) {
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 
 	todo := &Todo{
 		Text: "todo",
 		Done: false,
 	}
 
-	key := ds.NewIncompleteKey(ctx, kind, repo.parentKey(ctx))
+	key := ds.NewIncompleteKey(ctx, kind, repo.userKey(ctx))
 	if _, err := ds.Put(ctx, key, todo); err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestDeleteTodoAndReadTodo(t *testing.T) {
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 	todo := &Todo{
 		Text: "todo",
 		Done: false,
@@ -138,14 +138,14 @@ func TestDeleteDoneTodos(t *testing.T) {
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 	todo := &Todo{
 		ID:   10,
 		Text: "todo",
 		Done: true,
 	}
 
-	key := ds.NewKey(ctx, kind, "", todo.ID, repo.parentKey(ctx))
+	key := ds.NewKey(ctx, kind, "", todo.ID, repo.userKey(ctx))
 	if _, err := ds.Put(ctx, key, todo); err != nil {
 		t.Fatal(err)
 	}
@@ -172,7 +172,7 @@ func TestReadAllTodos(t *testing.T) {
 	}
 	defer done()
 
-	repo := &TodoDatastore{}
+	repo := &TodoDatastore{UserID: "default"}
 	todos := []*Todo{
 		&Todo{
 			ID:   0,
@@ -187,7 +187,7 @@ func TestReadAllTodos(t *testing.T) {
 	}
 
 	for _, todo := range todos {
-		key := ds.NewKey(ctx, kind, "", todo.ID, repo.parentKey(ctx))
+		key := ds.NewKey(ctx, kind, "", todo.ID, repo.userKey(ctx))
 		if _, err := ds.Put(ctx, key, todo); err != nil {
 			t.Fatal(err)
 		}
