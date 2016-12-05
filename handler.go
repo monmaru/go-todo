@@ -61,7 +61,7 @@ func (app *App) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url, _ := _userWrapper.LogoutURL(ctx, "/")
-	templ := template.Must(template.ParseFiles(filepath.Join("templates", "todo.html")))
+	templ := template.Must(template.ParseFiles(filepath.Join("templates", "index.html")))
 	templ.Execute(w, map[string]string{"EMAIL": u.Email, "LOGOUT": url})
 }
 

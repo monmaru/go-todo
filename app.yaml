@@ -4,9 +4,13 @@ runtime: go
 api_version: go1
 
 handlers:
+- url: /js
+  static_dir: public/js
+
 - url: /favicon.ico
   static_files: favicon.ico
   upload: favicon.ico
+
 - url: /.*
   script: _go_app
 
