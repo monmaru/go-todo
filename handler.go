@@ -162,9 +162,6 @@ func (app *App) parseID(r *http.Request) (id int64, err error) {
 
 func toHash(text string) string {
 	salt := os.Getenv("SALT")
-	if salt == "" {
-		salt = "salt"
-	}
 	bytes := sha256.Sum256([]byte(text + salt))
 	return hex.EncodeToString(bytes[:])
 }
