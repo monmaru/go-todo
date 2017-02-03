@@ -66,7 +66,7 @@ func TestCurrentUser(t *testing.T) {
 	ctx := helper.Context(r)
 	defer ctx.Done()
 
-	if user := helper.CurrentUser(ctx); user == nil {
+	if u := helper.CurrentUser(ctx); u == nil {
 		t.Fatal("user shoud not be nil")
 	}
 }

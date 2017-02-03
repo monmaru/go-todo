@@ -93,7 +93,7 @@ func TestHandleGetTodo(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(dummyTodo, todo) {
-		t.Fatalf("Not the same value")
+		t.Fatal("Not the same value")
 	}
 }
 
@@ -109,7 +109,7 @@ func TestHandleGetAllTodos(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(dummyTodos, todos) {
-		t.Fatalf("Not the same value")
+		t.Fatal("Not the same value")
 	}
 }
 
@@ -127,7 +127,7 @@ func TestHandlePutTodo(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(dummyTodo, todo) {
-		t.Fatalf("Not the same value")
+		t.Fatal("Not the same value")
 	}
 }
 
@@ -145,7 +145,7 @@ func TestHandlePostTodo(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(dummyTodo, todo) {
-		t.Fatalf("Not the same value")
+		t.Fatal("Not the same value")
 	}
 }
 
@@ -156,7 +156,7 @@ func TestHandleDeleteTodo(t *testing.T) {
 	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Status Code is invalid")
+		t.Fatal("Status Code is invalid")
 	}
 }
 
@@ -167,7 +167,7 @@ func TestHandleDeleteDoneTodos(t *testing.T) {
 	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Status Code is invalid")
+		t.Fatal("Status Code is invalid")
 	}
 }
 
@@ -190,7 +190,7 @@ func TestHandleRootOnLogin(t *testing.T) {
 	Router(newfakeHelper()).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Status Code is invalid")
+		t.Fatal("Status Code is invalid")
 	}
 }
 
@@ -216,10 +216,10 @@ func TestHandleRootOnLogout(t *testing.T) {
 	Router(fake).ServeHTTP(w, r)
 
 	if w.Code != http.StatusFound {
-		t.Fatalf("Status Code is invalid")
+		t.Fatal("Status Code is invalid")
 	}
 
 	if w.Header().Get("Location") != expectedLoginURL {
-		t.Fatalf("Location header is invalid")
+		t.Fatal("Location header is invalid")
 	}
 }

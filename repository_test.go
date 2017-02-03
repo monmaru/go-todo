@@ -17,7 +17,7 @@ func TestUserKey(t *testing.T) {
 	repo := &TodoDatastore{UserID: "default"}
 
 	if key := repo.userKey(ctx); key == nil {
-		t.Fatalf("key should not be nil")
+		t.Fatal("key should not be nil")
 	}
 }
 
@@ -38,7 +38,7 @@ func TestCreateTodo(t *testing.T) {
 	created, err := repo.CreateTodo(ctx, expected)
 
 	if created == nil {
-		t.Fatalf("created should not be nil")
+		t.Fatal("created should not be nil")
 	}
 
 	if err != nil {
@@ -52,7 +52,7 @@ func TestCreateTodo(t *testing.T) {
 	}
 
 	if expected.Text != result.Text {
-		t.Fatalf("Failed to create")
+		t.Fatal("Failed to create")
 	}
 }
 
@@ -80,7 +80,7 @@ func TestUpdateTodo(t *testing.T) {
 	updated, err := repo.UpdateTodo(ctx, todo)
 
 	if updated == nil {
-		t.Fatalf("updated should not be nil")
+		t.Fatal("updated should not be nil")
 	}
 
 	if err != nil {
@@ -94,7 +94,7 @@ func TestUpdateTodo(t *testing.T) {
 	}
 
 	if !result.Done {
-		t.Fatalf("Failed to update")
+		t.Fatal("Failed to update")
 	}
 }
 
@@ -127,7 +127,7 @@ func TestDeleteTodoAndReadTodo(t *testing.T) {
 	}
 
 	if len(todos) != 0 {
-		t.Fatalf("todos should be deleted")
+		t.Fatal("todos should be deleted")
 	}
 }
 
@@ -161,7 +161,7 @@ func TestDeleteDoneTodos(t *testing.T) {
 	}
 
 	if len(todos) != 0 {
-		t.Fatalf("todos should be deleted")
+		t.Fatal("todos should be deleted")
 	}
 }
 
@@ -174,12 +174,12 @@ func TestReadAllTodos(t *testing.T) {
 
 	repo := &TodoDatastore{UserID: "default"}
 	todos := []*Todo{
-		&Todo{
+		{
 			ID:   0,
 			Text: "todo",
 			Done: false,
 		},
-		&Todo{
+		{
 			ID:   0,
 			Text: "todo",
 			Done: true,
